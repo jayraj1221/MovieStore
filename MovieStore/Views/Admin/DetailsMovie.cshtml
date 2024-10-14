@@ -1,0 +1,25 @@
+﻿@model MovieStore.Models.Movie
+
+@{
+    ViewData["Title"] = "Movie Details";
+}
+
+<h2 class="text-center my-4">Movie Details</h2>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4 shadow-sm">
+                <img src="~/images/movies/@Model.ImagePath" alt="Poster" class="card-img-top" style="height: 400px; object-fit: cover;" />
+                <div class="card-body">
+                    <h5 class="card-title">@Model.Title</h5>
+                    <p class="card-text"><strong>Genre:</strong> @Model.Genre</p>
+                    <p class="card-text"><strong>Release Date:</strong> @Model.ReleaseDate.ToShortDateString()</p>
+                    <p class="card-text"><strong>Price:</strong> @Model.Price.ToString("C")</p>
+                    <a asp-controller="Admin" asp-action="EditMovie" asp-route-id="@Model.MovieId" class="btn btn-primary">Edit Movie</a>
+                    <a asp-controller="Admin" asp-action="ManageMovies" class="btn btn-secondary">Back to List</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

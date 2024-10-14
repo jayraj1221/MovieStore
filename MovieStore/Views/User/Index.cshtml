@@ -1,0 +1,42 @@
+﻿@model IEnumerable<MovieStore.Models.Movie>
+@{
+    var errorMessage = TempData["ErrorMessage"];
+}
+
+@if (errorMessage != null)
+{
+    <div class="alert alert-warning" role="alert">
+        @errorMessage
+    </div>
+}
+<h2>Available Movies</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Genre</th>
+            <th>Release Date</th>
+            <th>Price</th>
+            <th>Poster</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var movie in Model)
+        {
+            <tr>
+                <td>@movie.Title</td>
+                <td>@movie.Genre</td>
+                <td>@movie.ReleaseDate.ToString("MM/dd/yyyy")</td>
+                <td>@movie.Price.ToString("C")</td>
+                <td>
+                    <img src="~/images/movies/@movie.ImagePath" alt="@movie.Title" style="width:100px; height:auto;" />
+                </td>
+                <td>
+                    <a asp-action="ConfirmPurchase" asp-route-movieId="@movie.MovieId" class="btn btn-success">Purchase</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

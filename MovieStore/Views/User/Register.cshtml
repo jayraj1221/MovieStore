@@ -1,0 +1,41 @@
+﻿@model MovieStore.Models.RegisterUserViewModel
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+<h2>Register</h2>
+
+<form asp-action="Register" method="post" enctype="multipart/form-data">
+    <div>
+        <label asp-for="UserName"></label>
+        <input asp-for="UserName" required />
+        <span asp-validation-for="UserName"></span>
+    </div>
+    <div>
+        <label asp-for="Email"></label>
+        <input asp-for="Email" type="email" required />
+        <span asp-validation-for="Email"></span>
+    </div>
+    <div>
+        <label asp-for="Password"></label>
+        <input asp-for="Password" type="password" required />
+        <span asp-validation-for="Password"></span>
+    </div>
+    <div>
+        <label asp-for="Role"></label>
+        <select asp-for="Role">
+            <option value="User">User</option>
+            <option value="Admin">Admin</option>
+        </select>
+        <span asp-validation-for="Role"></span>
+    </div>
+    <div>
+        <label asp-for="ProfileImage"></label>
+        <input asp-for="ProfileImage" name="profileImage" type="file" accept="image/*"  required/>
+          <span asp-validation-for="ProfileImage"></span>
+    </div>
+    <button type="submit">Register</button>
+</form>
+
+<a asp-controller="User" asp-action="Login">Already have an account? Login</a>

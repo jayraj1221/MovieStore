@@ -1,0 +1,59 @@
+﻿@model IEnumerable<MovieStore.Models.Movie>
+
+@{
+    ViewData["Title"] = "Manage Movies";
+}
+
+<h2>Manage Movies</h2>
+
+<div class="mb-3">
+    <a asp-controller="Admin" asp-action="AddMovie" class="btn btn-primary">Add New Movie</a>
+</div>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-warning" role="alert">
+        No movies are available at the moment.
+    </div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Genre</th>
+                <th>Release Date</th>
+                <th>Price</th>
+                <th>Image</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var movie in Model)
+            {
+                <tr>
+                    <td>@movie.Title</td>
+                    <td>@movie.Genre</td>
+                    <td>@movie.ReleaseDate.ToString("MM/dd/yyyy")</td>
+                    <td>@movie.Price.ToString("C")</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(movie.ImagePath))
+                        {
+                            <img src="~/images/movies/@movie.ImagePath" alt="Movie Image" style="width:100px; height:auto;" />
+                        }
+                        else
+                        {
+                            <span>No image available</span>
+                        }
+                    </td>
+                    <td>
+                        <a asp-controller="Admin" asp-action="EditMovie" asp-route-id="@movie.MovieId" class="btn btn-warning btn-sm">Edit</a>
+                        <a asp-controller="Admin" asp-action="DeleteMovie" asp-route-id="@movie.MovieId" class="btn btn-danger btn-sm">Delete</a>
+                        <a asp-controller="Admin" asp-action="DetailsMovie" asp-route-id="@movie.MovieId" class="btn btn-info btn-sm">Details</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

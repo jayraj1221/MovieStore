@@ -1,0 +1,58 @@
+﻿@model MovieStore.Models.AddMovieModel
+
+<h2>Add a Movie</h2>
+
+<form asp-action="AddMovie" method="post" enctype="multipart/form-data">
+    <div>
+        <label asp-for="Title"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div>
+        <label asp-for="SelectedGenre"></label>
+        <select asp-for="SelectedGenre" class="form-control">
+            <option value="">-- Select Genre --</option>
+            <option value="Action">Action</option>
+            <option value="Comedy">Comedy</option>
+            <option value="Drama">Drama</option>
+            <option value="Horror">Horror</option>
+            <option value="Romance">Romance</option>
+            <option value="Thriller">Thriller</option>
+        </select>
+        <span asp-validation-for="SelectedGenre" class="text-danger"></span>
+    </div>
+
+    <div>
+        <label asp-for="ReleaseDate"></label>
+        <input asp-for="ReleaseDate" type="date" class="form-control" />
+        <span asp-validation-for="ReleaseDate" class="text-danger"></span>
+    </div>
+
+    <div>
+        <label asp-for="Price"></label>
+        <input asp-for="Price" type="number" step="0.01" class="form-control" />
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+
+    <div>
+        <label asp-for="PosterImage"></label>
+        <input asp-for="PosterImage" type="file" class="form-control" accept="image/*" />
+        <span asp-validation-for="PosterImage" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add Movie</button>
+</form>
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <ul>
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
+    </div>
+}
+
+<a asp-controller="Admin" asp-action="ManageMovies" class="btn btn-secondary">Back to Movies</a>

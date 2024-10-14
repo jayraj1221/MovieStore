@@ -1,0 +1,64 @@
+﻿@model MovieStore.Models.DashboardViewModel
+
+<h2>Admin Dashboard</h2>
+
+<div>
+    <h3>Summary</h3>
+    <ul>
+        <li>Total Movies: @Model.TotalMovies</li>
+        <li>Total Users: @Model.TotalUsers</li>
+    </ul>
+</div>
+
+<div>
+    <h3>Movies List</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Genre</th>
+                <th>Release Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var movie in Model.Movies)
+            {
+                <tr>
+                    <td>@movie.Title</td>
+                    <td>@movie.Genre</td>
+                    <td>@movie.ReleaseDate.ToString("yyyy-MM-dd")</td>
+                    <td>
+                        <a asp-action="EditMovie" asp-route-id="@movie.MovieId" class="btn btn-warning">Edit</a>
+                        <a asp-action="DeleteMovie" asp-route-id="@movie.MovieId" class="btn btn-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div>
+    <h3>User Details</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>User ID</th>
+                <th>Username</th>
+                <th>Email</th>
+               
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model.Users) // Ensure you pass Users in the DashboardViewModel
+            {
+                <tr>
+                    <td>@user.UserId</td>
+                    <td>@user.UserName</td>
+                    <td>@user.Email</td>
+                    
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

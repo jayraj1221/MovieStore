@@ -1,0 +1,79 @@
+﻿@model MovieStore.Models.EditMovieModel
+
+<h2>Edit Movie</h2>
+
+<form asp-action="EditMovie" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="MovieId" />
+
+    <div class="form-group">
+        <label asp-for="Title"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="SelectedGenre"></label>
+        <select asp-for="SelectedGenre" class="form-control">
+            <option value="">-- Select Genre --</option>
+            <option value="Action">Action</option>
+            <option value="Comedy">Comedy</option>
+            <option value="Drama">Drama</option>
+            <option value="Horror">Horror</option>
+            <option value="Romance">Romance</option>
+            <option value="Thriller">Thriller</option>
+        </select>
+        <span asp-validation-for="SelectedGenre" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ReleaseDate"></label>
+        <input asp-for="ReleaseDate" type="date" class="form-control" />
+        <span asp-validation-for="ReleaseDate" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Price"></label>
+        <input asp-for="Price" type="number" step="0.01" class="form-control" />
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="PosterImage">Upload Poster</label>
+        <input asp-for="PosterImage" type="file" class="form-control" accept="image/*" onchange="updateCurrentPoster(event)" />
+
+        <!-- Display the current movie poster -->
+        <div>
+            <h5>Current Poster:</h5>
+            @if (!string.IsNullOrEmpty(Model.ImagePath))
+            {
+                <img id="currentPoster" src="~/images/movies/@Model.ImagePath" alt="Current Poster" style="max-width: 200px; max-height: 300px;" />
+            }
+            else
+            {
+                <p>No current poster available.</p>
+            }
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <a asp-controller="Admin" asp-action="ManageMovies" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <script>
+        function updateCurrentPoster(event) {
+            const file = event.target.files[0];
+            const currentPoster = document.getElementById('currentPoster');
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                currentPoster.src = e.target.result; // Update the current poster image source
+            };
+
+            if (file) {
+                reader.readAsDataURL(file); // Convert the file to base64 URL
+            }
+        }
+    </script>
+}

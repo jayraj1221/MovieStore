@@ -1,0 +1,24 @@
+﻿@model MovieStore.Models.Movie
+
+<h2>Delete Movie</h2>
+
+<div>
+    <h3>Movie Details</h3>
+    <p><strong>Title:</strong> @Model.Title</p>
+    <p><strong>Genre:</strong> @Model.Genre</p>
+    <p><strong>Release Date:</strong> @Model.ReleaseDate.ToShortDateString()</p>
+    <p><strong>Price:</strong> @Model.Price.ToString("C")</p>
+    <div>
+        <strong>Poster:</strong><br />
+        <img src="~/images/movies/@Model.ImagePath" alt="Poster" style="max-width: 200px; max-height: 300px;" />
+    </div>
+</div>
+
+<p>Are you sure you want to delete this movie?</p>
+
+<form asp-action="DeleteMovieConfirm" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="movieId" value="@Model.MovieId" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-controller="Admin" asp-action="ManageMovies" class="btn btn-secondary">Cancel</a>
+</form>

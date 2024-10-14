@@ -1,0 +1,19 @@
+﻿@model MovieStore.Models.Movie
+
+<h2>Confirm Purchase</h2>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Movie Title: @Model.Title</h5>
+        <p class="card-text">Genre: @Model.Genre</p>
+        <p class="card-text">Release Date: @Model.ReleaseDate.ToString("MM/dd/yyyy")</p>
+        <p class="card-text">Price: @Model.Price.ToString("C")</p>
+        <img src="~/images/movies/@Model.ImagePath" alt="@Model.Title" style="width:200px; height:auto;" />
+
+        <form asp-action="PurchaseConfirmed" method="post">
+            <input type="hidden" name="movieId" value="@Model.MovieId" />
+            <button type="submit" class="btn btn-success">Confirm Purchase</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
