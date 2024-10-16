@@ -159,7 +159,8 @@ namespace MovieStore.Controllers
                 OrderDate = DateTime.Now,
                 TotalAmount = movie.Price, // Assuming a single movie purchase
                 MovieId = movieId, // Add MovieId to your Order model if not already there
-                Price = movie.Price
+                Price = movie.Price,
+                Rating = 0
             };
           
             // Add the order to the user's purchase history (repository method)
@@ -212,10 +213,102 @@ namespace MovieStore.Controllers
             {
                 OrderId = orderId,
                 MovieTitle = order.Movie.Title,
-                Rating = order.Rating ?? 0 // Existing rating or default to 0
+                Rating = order.Rating // Existing rating or default to 0
             };
 
             return View(viewModel);
         }
+
+        [HttpPost]
+        public IActionResult RateMovie(RateMovieViewModel model)
+        {
+            var order = _userRepository.GetOrderById(model.OrderId);
+            if (order == null || order.UserId != GetCurrentUserId())
+            {
+                return NotFound();
+            }
+
+            // Update the rating
+            order.Rating = model.Rating;
+            _userRepository.UpdateOrder(order);
+
+            return RedirectToAction("Orders");
+        }
+
+        [HttpGet]
+        public IActionResult EditProfile()
+        {
+            var userName = HttpContext.Session.GetString("UserName"); // Assuming you're using session for user management
+            var user = _userRepository.GetUserByUsername(userName);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var model = new EditProfileViewModel
+            {
+                UserId = user.UserId,
+                UserName = user.UserName,
+                Email = user.Email,
+                ProfileImagePath = user.ProfileImagePath // Show current profile image
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult EditProfile(EditProfileViewModel model)
+        {
+            _log.LogInformation("Attempting to edit user profile");
+
+            if (ModelState.IsValid)
+            {
+                // Retrieve the existing user from the database
+                var user = _userRepository.GetUserByIdAsync(model.UserId);
+                if (user == null)
+                {
+                    return NotFound(); // Return a 404 if the user is not found
+                }
+
+                // Update user properties
+                user.UserName = model.UserName;
+                user.Email = model.Email;
+
+                // Handle the profile image upload
+                if (model.ProfileImage != null && model.ProfileImage.Length > 0)
+                {
+                    var uploadsFolder = Path.Combine(_env.WebRootPath, "images"); // Adjust the path as needed
+                    var uniqueFileName = Guid.NewGuid().ToString() + "_" + model.ProfileImage.FileName;
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    // Save the new profile image
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        model.ProfileImage.CopyTo(fileStream);
+                    }
+
+                    // Update the user's profile image path
+                    user.ProfileImagePath = uniqueFileName; // Adjust this to match your property
+                }
+
+                // Save changes in the repository
+                _userRepository.UpdateUser(user); // Assuming you have an UpdateUser method
+
+                // Redirect to the Profile action after successful update
+                return RedirectToAction("Profile", new { id = model.UserId });
+            }
+
+            // Log any errors
+            foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+            {
+                _log.LogError(error.ErrorMessage);
+            }
+
+            // If we get here, something went wrong; return the view with the current model
+            return View(model);
+        }
+
     }
 }

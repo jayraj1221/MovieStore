@@ -1,24 +1,104 @@
-﻿@{
-    ViewData["Title"] = "Login";
-}
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MovieStore</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/MovieStore.styles.css" asp-append-version="true" />
+    <style>
+        /* Ensure the body and html take full height */
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        /* Full page section */
+        .full-page {
+            position: relative;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1; /* Ensure form is above the blurred background */
+        }
 
-<h2>Login</h2>
+        .form-container {
+            max-width: 400px;
+            width: 100%;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .custom{
+            z-index: 1;
+        }
 
-<form asp-action="Login" method="post">
-    <div>
-        <label for="username">Username</label>
-        <input type="text" name="username" required />
+        .background-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('/assets/background.jpg'); /* Path to your image */
+            background-size: 110%;
+            background-position: center center;
+            background-repeat: no-repeat;
+            filter: blur(8px); /* Apply blur only to the background */
+            z-index: -1; /* Place background behind the content */
+        }
+
+        .font {
+            font-family: "Teko", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 800;
+            font-style: normal;
+            color:red;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@300..700&display=swap" rel="stylesheet">
+</head>
+<body>
+    @{
+        Layout = null;
+        ViewData["Title"] = "Login";
+    }
+    <div class="background-container"></div>
+    <div class="bg-info h1 m-1 bg-transparent"><div class="m-4 d-flex"><p class="font">My</p><p class="font">Movies</p></div> </div>
+    <div class="container-fluid full-page  d-flex">
+        
+        <div class="bg-transparent h-75 w-75 m-5 custom d-flex align-items-center justify-content-center">
+            <div class="form-container bg-transparent " style="background-color: rgba(0, 0, 0, 0.5);">
+           
+            <h2 class="text-center mb-4 text-white">Login</h2>
+
+            <form asp-action="Login" method="post">
+                <div class="mb-3">
+                        <label for="username" class="form-label text-white">Username</label>
+                        <input type="text" name="username" id="username" class="form-control " required />
+                </div>
+                <div class="mb-3">
+                        <label for="password" class="form-label text-white">Password</label>
+                        <input type="password" name="password" id="password" class="form-control " required />
+                </div>
+                <button type="submit" class="btn btn-primary w-100 bg-blue-200">Login</button>
+            </form>
+
+            <div class="text-center mt-3">
+                <a asp-controller="User" asp-action="Register">Don't have an account? Register</a>
+            </div>
+
+            @if (ViewBag.ErrorMessage != null)
+            {
+                <div class="alert alert-danger mt-3">@ViewBag.ErrorMessage</div>
+            }
+        </div>
+        </div>
     </div>
-    <div>
-        <label for="password">Password</label>
-        <input type="password" name="password" required />
-    </div>
-    <button type="submit">Login</button>
-</form>
 
-<a asp-controller="User" asp-action="Register">Don't have an account? Register</a>
-
-@if (ViewBag.ErrorMessage != null)
-{
-    <div style="color:red;">@ViewBag.ErrorMessage</div>
-}
+</body>
+</html>

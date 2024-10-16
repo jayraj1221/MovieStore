@@ -59,10 +59,14 @@ namespace MovieStore.Repository
             context.SaveChanges();
         }
 
-        public Order GetOrderById(int userId)
+        public Order GetOrderById(int orderId)
         {
-            context.Orders.Find()
+            return context.Orders.Include(o => o.Movie).FirstOrDefault(o => o.OrderId == orderId);
         }
-
+        public void UpdateUser(User user)
+        {
+            context.Users.Update(user);
+            context.SaveChanges();
+        }
     }
 }

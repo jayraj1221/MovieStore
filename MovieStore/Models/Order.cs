@@ -19,7 +19,7 @@ namespace MovieStore.Models
         // Price of the movie at the time of purchase
         public decimal Price { get; set; }
 
-        public int? Rating { get; set; }
+        public int Rating { get; set; }
         public override string ToString()
         {
             return $"OrderId: {OrderId}, UserId: {UserId}, OrderDate: {OrderDate}, TotalAmount: {TotalAmount}, MovieId: {MovieId}, Price: {Price}";

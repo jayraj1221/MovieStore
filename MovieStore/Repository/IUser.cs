@@ -18,8 +18,10 @@ namespace MovieStore.Repository
 
         public void UpdateOrder(Order order);
 
-        public Order GetOrderById(int userId);
-        
+        public Order GetOrderById(int orderId);
+
+        public void UpdateUser(User user);
+
     }
 
 }

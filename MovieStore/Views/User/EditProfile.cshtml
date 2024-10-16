@@ -1,0 +1,59 @@
+﻿@model MovieStore.Models.EditProfileViewModel
+
+<h2>Edit Profile</h2>
+
+<form asp-action="EditProfile" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="UserId" />
+
+    <div class="form-group">
+        <label asp-for="UserName"></label>
+        <input asp-for="UserName" class="form-control" />
+        <span asp-validation-for="UserName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Email"></label>
+        <input asp-for="Email" type="email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ProfileImage">Upload New Profile Picture</label>
+        <input asp-for="ProfileImage" type="file" class="form-control" accept="image/*" onchange="updateCurrentProfileImage(event)" />
+
+        <!-- Display the current profile picture -->
+        <div>
+            <h5>Current Profile Picture:</h5>
+            @if (!string.IsNullOrEmpty(Model.ProfileImagePath))
+            {
+                <img id="currentProfileImage" src="~/images/@Model.ProfileImagePath" alt="Current Profile Picture" style="max-width: 150px; max-height: 150px;" />
+            }
+            else
+            {
+                <p>No profile picture available.</p>
+            }
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <a asp-controller="User" asp-action="Profile" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <script>
+        function updateCurrentProfileImage(event) {
+            const file = event.target.files[0];
+            const currentProfileImage = document.getElementById('currentProfileImage');
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                currentProfileImage.src = e.target.result; // Update the current profile image source
+            };
+
+            if (file) {
+                reader.readAsDataURL(file); // Convert the file to base64 URL
+            }
+        }
+    </script>
+}

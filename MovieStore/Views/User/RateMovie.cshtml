@@ -1,0 +1,26 @@
+﻿@model MovieStore.Models.RateMovieViewModel
+
+<h2>Rate @Model.MovieTitle</h2>
+
+<form asp-action="RateMovie" method="post">
+    <div class="form-group">
+        <label for="rating">Select Rating</label>
+        <select id="rating" name="Rating" class="form-control">
+            @foreach (var rating in Model.RatingOptions)
+            {
+                if (rating == Model.Rating)
+                {
+                    <option value="@rating" selected>@rating</option>
+                }
+                else
+                {
+                    <option value="@rating">@rating</option>
+                }
+            }
+        </select>
+    </div>
+
+    <input type="hidden" asp-for="OrderId" />
+
+    <button type="submit" class="btn btn-primary">Submit Rating</button>
+</form>
