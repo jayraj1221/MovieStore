@@ -1,69 +1,101 @@
 ﻿@model MovieStore.Models.EditMovieModel
 
-<h2>Edit Movie</h2>
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h2 class="text-center">Edit Movie</h2>
+        </div>
+        <div class="card-body">
+            <!-- Form starts here -->
+            <form asp-action="EditMovie" asp-controller="Admin" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="MovieId" />
 
-<form asp-action="EditMovie" method="post" enctype="multipart/form-data">
-    @Html.AntiForgeryToken()
-    <input type="hidden" asp-for="MovieId" />
+                <div class="row">
+                    <!-- Left side: Image upload and current poster section -->
+                    <div class="col-md-4">
+                        <div class="mb-3 text-center">
+                            <h5>Current Poster:</h5>
+                            @if (!string.IsNullOrEmpty(Model.ImagePath))
+                            {
+                                <img id="currentPoster" src="~/images/movies/@Model.ImagePath" alt="Current Poster" class="img-fluid mb-3" />
+                            }
+                            else
+                            {
+                                <p>No current poster available.</p>
+                            }
 
-    <div class="form-group">
-        <label asp-for="Title"></label>
-        <input asp-for="Title" class="form-control" />
-        <span asp-validation-for="Title" class="text-danger"></span>
-    </div>
+                            <label asp-for="PosterImage" class="form-label">Upload New Poster</label>
+                            <input asp-for="PosterImage" type="file" class="form-control" accept="image/*" id="PosterImage" onchange="updateCurrentPoster();" />
+                            <span asp-validation-for="PosterImage" class="text-danger"></span>
+                        </div>
+                    </div>
 
-    <div class="form-group">
-        <label asp-for="SelectedGenre"></label>
-        <select asp-for="SelectedGenre" class="form-control">
-            <option value="">-- Select Genre --</option>
-            <option value="Action">Action</option>
-            <option value="Comedy">Comedy</option>
-            <option value="Drama">Drama</option>
-            <option value="Horror">Horror</option>
-            <option value="Romance">Romance</option>
-            <option value="Thriller">Thriller</option>
-        </select>
-        <span asp-validation-for="SelectedGenre" class="text-danger"></span>
-    </div>
+                    <!-- Right side: Movie details section -->
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label"></label>
+                            <input asp-for="Title" class="form-control" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
 
-    <div class="form-group">
-        <label asp-for="ReleaseDate"></label>
-        <input asp-for="ReleaseDate" type="date" class="form-control" />
-        <span asp-validation-for="ReleaseDate" class="text-danger"></span>
-    </div>
+                        <div class="mb-3">
+                            <label asp-for="SelectedGenre" class="form-label"></label>
+                            <select asp-for="SelectedGenre" class="form-select">
+                                <option value="">-- Select Genre --</option>
+                                <option value="Action">Action</option>
+                                <option value="Comedy">Comedy</option>
+                                <option value="Drama">Drama</option>
+                                <option value="Horror">Horror</option>
+                                <option value="Romance">Romance</option>
+                                <option value="Thriller">Thriller</option>
+                            </select>
+                            <span asp-validation-for="SelectedGenre" class="text-danger"></span>
+                        </div>
 
-    <div class="form-group">
-        <label asp-for="Price"></label>
-        <input asp-for="Price" type="number" step="0.01" class="form-control" />
-        <span asp-validation-for="Price" class="text-danger"></span>
-    </div>
+                        <div class="mb-3">
+                            <label asp-for="ReleaseDate" class="form-label"></label>
+                            <input asp-for="ReleaseDate" type="date" class="form-control" />
+                            <span asp-validation-for="ReleaseDate" class="text-danger"></span>
+                        </div>
 
-    <div class="form-group">
-        <label asp-for="PosterImage">Upload Poster</label>
-        <input asp-for="PosterImage" type="file" class="form-control" accept="image/*" onchange="updateCurrentPoster(event)" />
+                        <div class="mb-3">
+                            <label asp-for="Price" class="form-label"></label>
+                            <input asp-for="Price" type="number" step="0.01" class="form-control" />
+                            <span asp-validation-for="Price" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
 
-        <!-- Display the current movie poster -->
-        <div>
-            <h5>Current Poster:</h5>
-            @if (!string.IsNullOrEmpty(Model.ImagePath))
+                <!-- Submit and cancel buttons -->
+                <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+                <a asp-controller="Admin" asp-action="ManageMovies" class="btn btn-secondary w-100 mt-3">Cancel</a>
+            </form>
+
+            <!-- Display validation errors if model state is invalid -->
+            @if (!ViewData.ModelState.IsValid)
             {
-                <img id="currentPoster" src="~/images/movies/@Model.ImagePath" alt="Current Poster" style="max-width: 200px; max-height: 300px;" />
-            }
-            else
-            {
-                <p>No current poster available.</p>
+                <div class="alert alert-danger mt-4">
+                    <ul>
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <li>@error.ErrorMessage</li>
+                        }
+                    </ul>
+                </div>
             }
         </div>
+        <div class="card-footer text-center">
+            <a asp-controller="Admin" asp-action="ManageMovies" class="btn btn-secondary">Back to Movies</a>
+        </div>
     </div>
+</div>
 
-    <button type="submit" class="btn btn-primary">Save Changes</button>
-    <a asp-controller="Admin" asp-action="ManageMovies" class="btn btn-secondary">Cancel</a>
-</form>
-
+<!-- JavaScript for Image Preview -->
 @section Scripts {
     <script>
         function updateCurrentPoster(event) {
-            const file = event.target.files[0];
+            const file = document.getElementById('PosterImage').files[0];
             const currentPoster = document.getElementById('currentPoster');
             const reader = new FileReader();
 

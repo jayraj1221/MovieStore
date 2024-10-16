@@ -1,58 +1,98 @@
 ﻿@model MovieStore.Models.AddMovieModel
 
-<h2>Add a Movie</h2>
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h2 class="text-center">Add a Movie</h2>
+        </div>
+        <div class="card-body">
+            <!-- Form starts here -->
+            <form asp-action="AddMovie" asp-controller="Admin" method="post" enctype="multipart/form-data">
+                <div class="row">
+                    <!-- Left side: Image upload section -->
+                    <div class="col-md-4">
+                        <div class="mb-3 text-center">
+                            <img id="imagePreview" src="https://via.placeholder.com/200" alt="Movie Poster" class="img-fluid mb-3" />
+                            <label asp-for="PosterImage" class="form-label"></label>
+                            <input asp-for="PosterImage" type="file" class="form-control" accept="image/*" id="PosterImage" onchange="previewImage();" />
+                            <span asp-validation-for="PosterImage" class="text-danger"></span>
+                        </div>
+                    </div>
 
-<form asp-action="AddMovie" method="post" enctype="multipart/form-data">
-    <div>
-        <label asp-for="Title"></label>
-        <input asp-for="Title" class="form-control" />
-        <span asp-validation-for="Title" class="text-danger"></span>
-    </div>
+                    <!-- Right side: Movie details section -->
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label"></label>
+                            <input asp-for="Title" class="form-control" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
 
-    <div>
-        <label asp-for="SelectedGenre"></label>
-        <select asp-for="SelectedGenre" class="form-control">
-            <option value="">-- Select Genre --</option>
-            <option value="Action">Action</option>
-            <option value="Comedy">Comedy</option>
-            <option value="Drama">Drama</option>
-            <option value="Horror">Horror</option>
-            <option value="Romance">Romance</option>
-            <option value="Thriller">Thriller</option>
-        </select>
-        <span asp-validation-for="SelectedGenre" class="text-danger"></span>
-    </div>
+                        <div class="mb-3">
+                            <label asp-for="SelectedGenre" class="form-label"></label>
+                            <select asp-for="SelectedGenre" class="form-select">
+                                <option value="">-- Select Genre --</option>
+                                <option value="Action">Action</option>
+                                <option value="Comedy">Comedy</option>
+                                <option value="Drama">Drama</option>
+                                <option value="Horror">Horror</option>
+                                <option value="Romance">Romance</option>
+                                <option value="Thriller">Thriller</option>
+                            </select>
+                            <span asp-validation-for="SelectedGenre" class="text-danger"></span>
+                        </div>
 
-    <div>
-        <label asp-for="ReleaseDate"></label>
-        <input asp-for="ReleaseDate" type="date" class="form-control" />
-        <span asp-validation-for="ReleaseDate" class="text-danger"></span>
-    </div>
+                        <div class="mb-3">
+                            <label asp-for="ReleaseDate" class="form-label"></label>
+                            <input asp-for="ReleaseDate" type="date" class="form-control" />
+                            <span asp-validation-for="ReleaseDate" class="text-danger"></span>
+                        </div>
 
-    <div>
-        <label asp-for="Price"></label>
-        <input asp-for="Price" type="number" step="0.01" class="form-control" />
-        <span asp-validation-for="Price" class="text-danger"></span>
-    </div>
+                        <div class="mb-3">
+                            <label asp-for="Price" class="form-label"></label>
+                            <input asp-for="Price" type="number" step="0.01" class="form-control" />
+                            <span asp-validation-for="Price" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
 
-    <div>
-        <label asp-for="PosterImage"></label>
-        <input asp-for="PosterImage" type="file" class="form-control" accept="image/*" />
-        <span asp-validation-for="PosterImage" class="text-danger"></span>
-    </div>
+                <!-- Submit button -->
+                <button type="submit" class="btn btn-primary w-100">Add Movie</button>
+            </form>
 
-    <button type="submit" class="btn btn-primary">Add Movie</button>
-</form>
-@if (!ViewData.ModelState.IsValid)
-{
-    <div class="alert alert-danger">
-        <ul>
-            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            <!-- Display validation errors if model state is invalid -->
+            @if (!ViewData.ModelState.IsValid)
             {
-                <li>@error.ErrorMessage</li>
+                <div class="alert alert-danger mt-4">
+                    <ul>
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <li>@error.ErrorMessage</li>
+                        }
+                    </ul>
+                </div>
             }
-        </ul>
+        </div>
+        <div class="card-footer text-center">
+            <a asp-controller="Admin" asp-action="ManageMovies" class="btn btn-secondary">Back to Movies</a>
+        </div>
     </div>
-}
+</div>
 
-<a asp-controller="Admin" asp-action="ManageMovies" class="btn btn-secondary">Back to Movies</a>
+<!-- JavaScript for Image Preview -->
+<script>
+    function previewImage() {
+        const input = document.getElementById('PosterImage');
+        const preview = document.getElementById('imagePreview');
+
+        const file = input.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result; // Set the image source to the file's data
+            };
+            reader.readAsDataURL(file); // Read the file as a data URL
+        } else {
+            preview.src = "https://via.placeholder.com/200"; // Reset to default if no file is selected
+        }
+    }
+</script>

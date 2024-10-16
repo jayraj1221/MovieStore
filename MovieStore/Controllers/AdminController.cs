@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿    using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MovieStore.Models;
@@ -38,7 +38,8 @@ namespace MovieStore.Controllers
                 TotalOrders = _movieRepository.GetTotalOrders(),
                 Movies = _movieRepository.GetAllMovies(),
                 Users = _movieRepository.GetAllUsers(), // Get users here
-                GenreTransactionData = _movieRepository.GetGenreTransactionDataAsync()
+                GenreTransactionData = _movieRepository.GetGenreTransactionDataAsync(),
+                TrendingMovies = _movieRepository.GetTrendingMovies()
             };
             foreach (var genre in model.GenreTransactionData)
             {

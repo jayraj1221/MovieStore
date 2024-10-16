@@ -9,6 +9,7 @@
         public List<Movie> Movies { get; set; }
         public List<User> Users { get; set; } 
 
+        public List<Movie> TrendingMovies { get; set; }
         public Dictionary<string,int> GenreTransactionData { get; set; }
     }
 

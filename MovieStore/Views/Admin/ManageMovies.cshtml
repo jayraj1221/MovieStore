@@ -30,7 +30,7 @@ else
                         <p class="card-text">Price: @movie.Price.ToString("C")</p>
                     </div>
                     <div class="card-footer d-flex flex-row justify-content-evenly">
-                        <a asp-controller="Admin" asp-action="DeatilsMovie" asp-route-id="@movie.MovieId" class="btn btn-info btn-block">View Details</a>
+                        <a asp-controller="Admin" asp-action="DetailsMovie" asp-route-id="@movie.MovieId" class="btn btn-info btn-block">View Details</a>
                         <a asp-controller="Admin" asp-action="OwnedBy" asp-route-id="@movie.MovieId" class="btn btn-secondary btn-block">Owned By</a>
                     </div>
                 </div>

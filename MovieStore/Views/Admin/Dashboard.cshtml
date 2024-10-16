@@ -16,9 +16,9 @@
         </div>
 
         <!-- Total Users Card -->
-        <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
-            <div class="card text-white bg-warning">
-                <div class="card-body">
+        <div class="col-lg-4 col-md-6 col-sm-12 mb-3 rounded-5">
+            <div class="card text-white bg-warning rounded-3">
+                <div class="card-body rounded-2">
                     <h5 class="card-title">Total Users</h5>
                     <h2>@Model.TotalUsers</h2>
                     <p>Total Users</p>
@@ -40,13 +40,43 @@
         </div>
     </div>
 
-    <!-- Donut Chart for Genre Transactions -->
+    <!-- Donut Chart and Trending Movies Section -->
     <div class="row mt-5">
-        <div class="col-lg-6 col-md-8 col-sm-12">
+        <!-- Donut Chart for Genre Transactions -->
+        <div class="col-lg-6 col-md-8 col-sm-12 mb-3">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Popularity By Genre</h5>
                     <canvas id="genreChart" width="400" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trending Movies Section -->
+        <div class="col-lg-6 col-md-4 col-sm-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title ">Popular Movies</h5>
+                    <ul class="list-group">
+                        @if (Model.TrendingMovies != null && Model.TrendingMovies.Any())
+                        {
+                            @foreach (var movie in Model.TrendingMovies)
+                            {
+                                <li class="list-group-item d-flex align-items-center">
+                                    <img src="~/images/movies/@movie.ImagePath" alt="@movie.Title" class="img-thumbnail" style="width: 50px; height: 75px; margin-right: 10px;" />
+                                    <div>
+                                        <strong>@movie.Title</strong>
+                                        <p class="text-muted">(@movie.Genre)</p>
+                                    </div>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <li class="list-group-item">No trending movies available</li>
+                        }
+                    </ul>
+
                 </div>
             </div>
         </div>

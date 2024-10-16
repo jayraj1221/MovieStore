@@ -137,5 +137,26 @@ namespace MovieStore.Repository
                 .Select(o => o.User)
                 .ToList();
         }
+        public  List<Movie> GetTrendingMovies()
+        {
+            var trendingMovies =  _context.Orders
+             .GroupBy(o => o.MovieId) // Group by MovieId
+             .Select(g => new
+             {
+                 MovieId = g.Key,
+                 AverageRating = g.Average(o => o.Rating) // Calculate average rating
+             })
+             .OrderByDescending(m => m.AverageRating) // Order by average rating descending
+             .Take(10) // Get the top 10 trending movies
+             .ToList();
+
+            // Get the movie details for the trending movies
+            var movieIds = trendingMovies.Select(m => m.MovieId).ToList();
+            var movies =  _context.Movies
+                .Where(m => movieIds.Contains(m.MovieId))
+                .ToList();
+
+            return movies;
+        }
     }
 }
