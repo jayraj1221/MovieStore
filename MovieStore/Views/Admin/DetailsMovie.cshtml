@@ -27,7 +27,8 @@
                 <div class="mt-4">
                     <a asp-controller="Admin" asp-action="EditMovie" asp-route-id="@Model.MovieId" class="btn btn-warning me-2">Edit Movie</a>
                     <a asp-controller="Admin" asp-action="DeleteMovie" asp-route-id="@Model.MovieId" class="btn btn-danger me-2">Delete Movie</a>
-                    <a asp-controller="Admin" asp-action="ManageMovies" class="btn btn-secondary">Back to List</a>
+                    <a asp-controller="Admin" asp-action="OwnedBy" asp-route-id="@Model.MovieId" class="btn btn-info ">Owned By</a>
+                    <a asp-controller="Admin" asp-action="ManageMovies" class="btn btn-secondary ms-2">Back to List</a>
                 </div>
             </div>
         </div>

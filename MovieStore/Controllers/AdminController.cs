@@ -290,7 +290,12 @@ namespace MovieStore.Controllers
                 return NotFound(); // Return a 404 if the movie is not found
             }
 
-            return View(movie); // Pass the movie model to the view
+            var users = _movieRepository.GetUsersOwningMovie(id);
+
+            ViewBag.Movie = movie; // Pass the movie directly via ViewBag
+            ViewBag.Users = users; // Pass the list of users directly via ViewBag
+
+            return View();
         }
 
     }

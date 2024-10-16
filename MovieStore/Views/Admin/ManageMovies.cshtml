@@ -21,35 +21,17 @@ else
     <div class="row">
         @foreach (var movie in Model)
         {
-            <div class="col-md-3 col-sm-6 mb-4">
-                <div class="card h-100">
-                    <div class="card-img-top" style="height: 300px; overflow: hidden;">
-                        @if (!string.IsNullOrEmpty(movie.ImagePath))
-                        {
-                            <img src="~/images/movies/@movie.ImagePath" alt="Movie Image" class="card-img-top img-fluid" style="width: 100%; height: 100%; object-fit: cover;" />
-                        }
-                        else
-                        {
-                            <img src="~/images/no-image-available.png" alt="No image available" class="card-img-top img-fluid" style="width: 100%; height: 100%; object-fit: cover;" />
-                        }
-                    </div>
+            <div class="col-md-3 mb-3">
+                <div class="card h-100" style="height: 400px;">
 
-                    <div class="card-body">
-                        <h5 class="card-title">@movie.Title</h5>
-                        <p class="card-text">
-                            Genre: @movie.Genre <br />
-                            Release Date: @movie.ReleaseDate.ToString("MM/dd/yyyy") <br />
-                            Price: @movie.Price.ToString("C")
-                        </p>
+                    <img src="~/images/movies/@movie.ImagePath" alt="@movie.Title" class="card-img-top" style="height: 400px; object-fit: cover;" />
+                    <div class="card-body" style="flex-grow: 1;">
+                        <h6 class="card-title">@movie.Title</h6>
+                        <p class="card-text">Price: @movie.Price.ToString("C")</p>
                     </div>
-
                     <div class="card-footer d-flex flex-row justify-content-evenly">
-                        <a asp-controller="Admin" asp-action="DetailsMovie" asp-route-id="@movie.MovieId" class="btn btn-info btn-block">
-                            View Details
-                        </a>
-                        <a asp-controller="Admin" asp-action="OwnedBy" asp-route-id="@movie.MovieId" class="btn btn-outline-secondary btn-block">
-                            Owned By
-                        </a>
+                        <a asp-controller="Admin" asp-action="DeatilsMovie" asp-route-id="@movie.MovieId" class="btn btn-info btn-block">View Details</a>
+                        <a asp-controller="Admin" asp-action="OwnedBy" asp-route-id="@movie.MovieId" class="btn btn-secondary btn-block">Owned By</a>
                     </div>
                 </div>
             </div>
