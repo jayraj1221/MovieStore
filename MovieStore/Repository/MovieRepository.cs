@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 namespace MovieStore.Repository
 {
     public class MovieRepository : IMovie
@@ -21,6 +22,11 @@ namespace MovieStore.Repository
         {
             return _context.Users.Count(); // Assuming Users is your DbSet<User>
         }
+        public int GetTotalOrders()
+        {
+            return _context.Orders.Count(); // Assuming Users is your DbSet<User>
+        }
+
 
         public List<Movie> GetAllMovies()
         {
@@ -58,13 +64,78 @@ namespace MovieStore.Repository
             return _context.Users.ToList(); // Adjust based on your context
         }
 
-        
 
+        public IEnumerable<Movie> SearchMovies(string query)
+        {
+            if (string.IsNullOrEmpty(query))
+            {
+                return new List<Movie>();
+            }
+
+            // Compile a case-insensitive regular expression from the query
+            Regex regex;
+            try
+            {
+                regex = new Regex(query, RegexOptions.IgnoreCase);
+            }
+            catch (RegexParseException)
+            {
+                // Handle invalid regex patterns (return empty list or handle accordingly)
+                return new List<Movie>();
+            }
+
+            // Filter movies based on Title or Genre using regex matching
+            var movies = _context.Movies
+               .AsEnumerable()  // Switch to client-side evaluation
+               .Where(m => regex.IsMatch(m.Title) || regex.IsMatch(m.Genre))
+               .ToList();
+
+            return movies;
+        }
         // Method to get total movies
-       
+        public  Dictionary<string, int> GetGenreTransactionDataAsync()
+        {
+            // Fetch all orders including related Movie entities
+            var orders =  _context.Orders.Include(o => o.Movie).ToList();
 
-        // Method to get all movies
-        
+            // Group by genre and count transactions per genre
+            var genreTransactionData = orders
+                .GroupBy(o => o.Movie.Genre)
+                .ToDictionary(g => g.Key, g => g.Count());
 
+            return genreTransactionData;
+        }
+
+        public IEnumerable<Movie> GetUserOwnedMovies(int userId)
+        {
+            return _context.Orders
+                .Where(mu => mu.UserId == userId)
+                .Include(mu => mu.Movie)
+                .Select(mu => mu.Movie)
+                .ToList();
+        }
+
+        public decimal GetTotalMoneySpentByUser(int userId)
+        {
+            return _context.Orders
+                .Where(mu => mu.UserId == userId)
+                .Sum(mu => mu.Movie.Price);
+        }
+
+        public Dictionary<string, List<Movie>> GetMoviesByGenre(int userId)
+        {
+            return _context.Orders
+                .Where(mu => mu.UserId == userId)
+                .Include(mu => mu.Movie)
+                .GroupBy(mu => mu.Movie.Genre)
+                .ToDictionary(g => g.Key, g => g.Select(mu => mu.Movie).ToList());
+        }
+        public IEnumerable<User> GetUsersOwningMovie(int movieId)
+        {
+            return _context.Orders
+                .Where(o => o.MovieId == movieId)
+                .Select(o => o.User)
+                .ToList();
+        }
     }
 }

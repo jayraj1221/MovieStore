@@ -4,7 +4,7 @@
     ViewData["Title"] = "Manage Movies";
 }
 
-<h2>Manage Movies</h2>
+<h2>All Movies</h2>
 
 <div class="mb-3">
     <a asp-controller="Admin" asp-action="AddMovie" class="btn btn-primary">Add New Movie</a>
@@ -18,42 +18,41 @@
 }
 else
 {
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Genre</th>
-                <th>Release Date</th>
-                <th>Price</th>
-                <th>Image</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var movie in Model)
-            {
-                <tr>
-                    <td>@movie.Title</td>
-                    <td>@movie.Genre</td>
-                    <td>@movie.ReleaseDate.ToString("MM/dd/yyyy")</td>
-                    <td>@movie.Price.ToString("C")</td>
-                    <td>
+    <div class="row">
+        @foreach (var movie in Model)
+        {
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-img-top" style="height: 300px; overflow: hidden;">
                         @if (!string.IsNullOrEmpty(movie.ImagePath))
                         {
-                            <img src="~/images/movies/@movie.ImagePath" alt="Movie Image" style="width:100px; height:auto;" />
+                            <img src="~/images/movies/@movie.ImagePath" alt="Movie Image" class="card-img-top img-fluid" style="width: 100%; height: 100%; object-fit: cover;" />
                         }
                         else
                         {
-                            <span>No image available</span>
+                            <img src="~/images/no-image-available.png" alt="No image available" class="card-img-top img-fluid" style="width: 100%; height: 100%; object-fit: cover;" />
                         }
-                    </td>
-                    <td>
-                        <a asp-controller="Admin" asp-action="EditMovie" asp-route-id="@movie.MovieId" class="btn btn-warning btn-sm">Edit</a>
-                        <a asp-controller="Admin" asp-action="DeleteMovie" asp-route-id="@movie.MovieId" class="btn btn-danger btn-sm">Delete</a>
-                        <a asp-controller="Admin" asp-action="DetailsMovie" asp-route-id="@movie.MovieId" class="btn btn-info btn-sm">Details</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                    </div>
+
+                    <div class="card-body">
+                        <h5 class="card-title">@movie.Title</h5>
+                        <p class="card-text">
+                            Genre: @movie.Genre <br />
+                            Release Date: @movie.ReleaseDate.ToString("MM/dd/yyyy") <br />
+                            Price: @movie.Price.ToString("C")
+                        </p>
+                    </div>
+
+                    <div class="card-footer d-flex flex-row justify-content-evenly">
+                        <a asp-controller="Admin" asp-action="DetailsMovie" asp-route-id="@movie.MovieId" class="btn btn-info btn-block">
+                            View Details
+                        </a>
+                        <a asp-controller="Admin" asp-action="OwnedBy" asp-route-id="@movie.MovieId" class="btn btn-outline-secondary btn-block">
+                            Owned By
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 }

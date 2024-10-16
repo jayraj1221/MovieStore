@@ -1,0 +1,54 @@
+﻿@model MovieStore.Models.UserOwnedMoviesViewModel
+
+@{
+    ViewData["Title"] = "User Owned Movies";
+}
+<h2 class="text-center my-4">@Model.user.UserName's Owned Movies</h2>
+
+
+<div class="container">
+    @if (Model.OwnedMovies == null || !Model.OwnedMovies.Any())
+    {
+        <div class="alert alert-warning" role="alert">
+            No movies owned by this user.
+        </div>
+    }
+    else
+    {
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <h5 class="card-title">Total Money Spent</h5>
+                <h3 class="card-text">@Model.TotalSpent.ToString("C")</h3>
+            </div>
+        </div>
+
+        <div class="row">
+            @foreach (var genre in Model.MoviesByGenre.Keys)
+            {
+                <div class="col-md-12 mb-4">
+                    <h5 class="font-weight-bold mb-3" style="border-bottom: 2px solid #007bff; padding-bottom: 10px;">
+                        @genre (Total: @Model.MoviesByGenre[genre].Count)
+                    </h5>
+                    <div class="row">
+                        @foreach (var movie in Model.MoviesByGenre[genre])
+                        {
+                            <div class="col-md-3 mb-3">
+                                <div class="card h-100" style="height: 400px;">
+                                    
+                                    <img src="~/images/movies/@movie.ImagePath" alt="@movie.Title" class="card-img-top" style="height: 400px; object-fit: cover;" />
+                                    <div class="card-body" style="flex-grow: 1;">
+                                        <h6 class="card-title">@movie.Title</h6>
+                                        <p class="card-text">Price: @movie.Price.ToString("C")</p>
+                                    </div>
+                                    <div class="card-footer">
+                                        <a asp-controller="Admin" asp-action="DeatilsMovie" asp-route-id="@movie.MovieId" class="btn btn-info btn-block">View Details</a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

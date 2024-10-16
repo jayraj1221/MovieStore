@@ -1,0 +1,30 @@
+﻿@model MovieStore.Models.Movie
+
+@{
+    ViewData["Title"] = "Movie Details";
+    var errorMessage = TempData["ErrorMessage"];
+ }
+
+@if (errorMessage != null)
+{
+    <div class="alert alert-warning" role="alert">
+        @errorMessage
+    </div>
+}
+
+<div class="card mb-3">
+    <div class="row g-0">
+        <div class="col-md-4">
+            <img src="~/images/movies/@(Model.ImagePath ?? "default-movie.jpg")" class="img-fluid rounded-start" alt="@Model.Title" />
+        </div>
+        <div class="col-md-8">
+            <div class="card-body">
+                <h5 class="card-title">@Model.Title</h5>
+                <p class="card-text"><strong>Release Date:</strong> @Model.ReleaseDate.ToString("MMMM dd, yyyy")</p>
+                <p class="card-text"><strong>Genre:</strong> @Model.Genre</p>
+                <p class="card-text"><strong>Price:</strong> $@Model.Price</p>
+                <a asp-action="ConfirmPurchase" asp-route-movieId="@Model.MovieId" class="btn btn-success">Purchase</a>
+            </div>
+        </div>
+    </div>
+</div>

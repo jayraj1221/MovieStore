@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MovieStore.styles.css" asp-append-version="true" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header>
@@ -37,6 +38,10 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="ManageMovies">Manage Movies</a>
                             </li>
+                            <form asp-controller="Admin" asp-action="Search" method="get" class="d-flex">
+                                <input type="text" name="query" placeholder="Enter search pattern..." class="form-control me-2" required />
+                                <button type="submit" class="btn btn-primary">Search</button>
+                            </form>
                         }
                         else if (Context.Session.GetString("UserRole") == "User")
                         {
@@ -46,10 +51,14 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Orders">My Orders</a>
-                            </li
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="EditProfile">Edit Profiile</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Profile">Profile</a>
+                            </li>
+                            <form asp-controller="User" asp-action="Search" method="get" class="d-flex">
+                                <input type="text" name="query" placeholder="Enter search pattern..." class="form-control me-2" required />
+                                <button type="submit" class="btn btn-primary">Search</button>
+                            </form>
                         }
 
                         <!-- Common Logout Link -->

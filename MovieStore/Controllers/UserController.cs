@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MovieStore.Models;
 using MovieStore.Repository;
+using System.Security.Claims;
 namespace MovieStore.Controllers
 {
     public class UserController : Controller
@@ -150,7 +152,7 @@ namespace MovieStore.Controllers
             {
                 // You can return a view or message indicating that the movie has already been purchased
                 TempData["ErrorMessage"] = "You have already purchased this movie.";
-                return RedirectToAction("Index");
+                return RedirectToAction("MovieDetails", new {movieId=movieId});
             }
             // Create a new order object for the user
             var order = new Order
@@ -297,6 +299,7 @@ namespace MovieStore.Controllers
                 _userRepository.UpdateUser(user); // Assuming you have an UpdateUser method
 
                 // Redirect to the Profile action after successful update
+                TempData["SuccessMessage"] = "Profile edited successfully.";
                 return RedirectToAction("Profile", new { id = model.UserId });
             }
 
@@ -308,6 +311,52 @@ namespace MovieStore.Controllers
 
             // If we get here, something went wrong; return the view with the current model
             return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult Search(string query)
+        {
+            // Call the SearchMovies method from the repository
+            var movies = _userRepository.SearchMovies(query);
+
+            // If no movies were found or regex pattern is invalid, display error
+            if (movies == null || !movies.Any())
+            {
+                ViewBag.ErrorMessage = "No movies found matching your search criteria.";
+            }
+
+            return View("SearchResults", movies);
+        }
+        [HttpGet]
+        public IActionResult MovieDetails(int movieId)
+        {
+            // Find the movie by ID
+            var movie = _userRepository.GetMovieById(movieId);
+            if (movie == null)
+            {
+                return NotFound();
+            }
+
+            return View(movie);
+        }
+
+        [HttpGet]
+        public IActionResult Profile()
+        {
+            // Assuming you have the user's ID from the session or authentication context
+            int? userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return RedirectToAction("Login"); 
+            }
+            var user = _userRepository.GetUserByIdAsync(userId.Value);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return View(user);
         }
 
     }

@@ -34,7 +34,7 @@
                     <img src="~/images/movies/@movie.ImagePath" alt="@movie.Title" style="width:100px; height:auto;" />
                 </td>
                 <td>
-                    <a asp-action="ConfirmPurchase" asp-route-movieId="@movie.MovieId" class="btn btn-success">Purchase</a>
+                    <a asp-action="MovieDetails" asp-route-movieId="@movie.MovieId" class="btn btn-success">View Details</a>
                 </td>
             </tr>
         }

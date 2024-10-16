@@ -1,64 +1,98 @@
 ﻿@model MovieStore.Models.DashboardViewModel
 
-<h2>Admin Dashboard</h2>
+<div class="container mt-5">
+    <h2>Dashboard</h2>
+    <div class="row">
+        <!-- Total Movies Card -->
+        <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h5 class="card-title">Total Movies</h5>
+                    <h2>@Model.TotalMovies</h2>
+                    <p>Movies in the database</p>
+                    <a asp-action="ManageMovies" class="btn btn-light">More info <i class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+        </div>
 
-<div>
-    <h3>Summary</h3>
-    <ul>
-        <li>Total Movies: @Model.TotalMovies</li>
-        <li>Total Users: @Model.TotalUsers</li>
-    </ul>
+        <!-- Total Users Card -->
+        <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h5 class="card-title">Total Users</h5>
+                    <h2>@Model.TotalUsers</h2>
+                    <p>Total Users</p>
+                    <a asp-action="TotalUsers" class="btn btn-light">More info <i class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Transactions Card -->
+        <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+            <div class="card text-white bg-danger">
+                <div class="card-body">
+                    <h5 class="card-title">Total Transactions</h5>
+                    <h2>@Model.TotalOrders</h2>
+                    <p>Completed transactions</p>
+                    <a href="#" class="btn btn-light">More info <i class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Donut Chart for Genre Transactions -->
+    <div class="row mt-5">
+        <div class="col-lg-6 col-md-8 col-sm-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Popularity By Genre</h5>
+                    <canvas id="genreChart" width="400" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div>
-    <h3>Movies List</h3>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Genre</th>
-                <th>Release Date</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var movie in Model.Movies)
-            {
-                <tr>
-                    <td>@movie.Title</td>
-                    <td>@movie.Genre</td>
-                    <td>@movie.ReleaseDate.ToString("yyyy-MM-dd")</td>
-                    <td>
-                        <a asp-action="EditMovie" asp-route-id="@movie.MovieId" class="btn btn-warning">Edit</a>
-                        <a asp-action="DeleteMovie" asp-route-id="@movie.MovieId" class="btn btn-danger">Delete</a>
-                    </td>
-                </tr>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var ctx = document.getElementById('genreChart').getContext('2d');
+    var genreChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.GenreTransactionData.Keys.ToList())),  // genre labels
+            datasets: [{
+                label: ' ',
+                data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.GenreTransactionData.Values.ToList())), // transaction count per genre
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.5)',
+                    'rgba(54, 162, 235, 0.5)',
+                    'rgba(255, 206, 86, 0.5)',
+                    'rgba(75, 192, 192, 0.5)',
+                    'rgba(153, 102, 255, 0.5)',
+                    'rgba(255, 159, 64, 0.5)'
+                ],
+                borderColor: [
+                    'rgba(0, 0, 0, 1)',
+                    'rgba(0, 0, 0, 1)',
+                    'rgba(0, 0, 0, 1)',
+                    'rgba(0, 0, 0, 1)',
+                    'rgba(0, 0, 0, 1)',
+                    'rgba(0, 0, 0, 1)'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Transaction Distribution by Genre'
+                }
             }
-        </tbody>
-    </table>
-</div>
-
-<div>
-    <h3>User Details</h3>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>User ID</th>
-                <th>Username</th>
-                <th>Email</th>
-               
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var user in Model.Users) // Ensure you pass Users in the DashboardViewModel
-            {
-                <tr>
-                    <td>@user.UserId</td>
-                    <td>@user.UserName</td>
-                    <td>@user.Email</td>
-                    
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
+        }
+    });
+</script>

@@ -8,15 +8,25 @@
 
 <div class="container">
     <div class="row">
+        <!-- Left column for the image -->
         <div class="col-md-6">
-            <div class="card mb-4 shadow-sm">
-                <img src="~/images/movies/@Model.ImagePath" alt="Poster" class="card-img-top" style="height: 400px; object-fit: cover;" />
-                <div class="card-body">
-                    <h5 class="card-title">@Model.Title</h5>
-                    <p class="card-text"><strong>Genre:</strong> @Model.Genre</p>
-                    <p class="card-text"><strong>Release Date:</strong> @Model.ReleaseDate.ToShortDateString()</p>
-                    <p class="card-text"><strong>Price:</strong> @Model.Price.ToString("C")</p>
-                    <a asp-controller="Admin" asp-action="EditMovie" asp-route-id="@Model.MovieId" class="btn btn-primary">Edit Movie</a>
+            <div class="movie-image-container" style="text-align: center;">
+                <img src="~/images/movies/@(Model.ImagePath ?? "default-movie.jpg")" class="img-fluid rounded" alt="Movie Poster" style="max-width: 100%; height: auto;" />
+            </div>
+        </div>
+
+        <!-- Right column for the movie details -->
+        <div class="col-md-6">
+            <div class="movie-details-container">
+                <h2>@Model.Title</h2>
+                <p><strong>Genre:</strong> @Model.Genre</p>
+                <p><strong>Release Date:</strong> @Model.ReleaseDate.ToString("MMMM dd, yyyy")</p>
+                <p><strong>Price:</strong> @Model.Price.ToString("C")</p>
+
+                <!-- Action Buttons -->
+                <div class="mt-4">
+                    <a asp-controller="Admin" asp-action="EditMovie" asp-route-id="@Model.MovieId" class="btn btn-warning me-2">Edit Movie</a>
+                    <a asp-controller="Admin" asp-action="DeleteMovie" asp-route-id="@Model.MovieId" class="btn btn-danger me-2">Delete Movie</a>
                     <a asp-controller="Admin" asp-action="ManageMovies" class="btn btn-secondary">Back to List</a>
                 </div>
             </div>

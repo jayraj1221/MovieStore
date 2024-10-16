@@ -22,6 +22,10 @@ namespace MovieStore.Repository
 
         public void UpdateUser(User user);
 
+        Movie GetMovieById(int id);
+
+        IEnumerable<Movie> SearchMovies(string query);
+
     }
 
 }

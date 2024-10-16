@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using MovieStore.Models;
 using MovieStore.Repository;
 
@@ -34,10 +35,15 @@ namespace MovieStore.Controllers
             {
                 TotalMovies = _movieRepository.GetTotalMovies(),
                 TotalUsers = _movieRepository.GetTotalUsers(),
+                TotalOrders = _movieRepository.GetTotalOrders(),
                 Movies = _movieRepository.GetAllMovies(),
-                Users = _movieRepository.GetAllUsers() // Get users here
+                Users = _movieRepository.GetAllUsers(), // Get users here
+                GenreTransactionData = _movieRepository.GetGenreTransactionDataAsync()
             };
-
+            foreach (var genre in model.GenreTransactionData)
+            {
+                _logger.LogInformation($"Genre: {genre.Key}, Transactions: {genre.Value}");
+            }
             return View(model);
         }
 
@@ -235,8 +241,57 @@ namespace MovieStore.Controllers
 
             return View(movie); // Pass the movie model to the view
         }
+        [HttpGet]
+        public IActionResult Search(string query)
+        {
+            // Call the SearchMovies method from the repository
+            var movies = _movieRepository.SearchMovies(query);
 
+            // If no movies were found or regex pattern is invalid, display error
+            if (movies == null || !movies.Any())
+            {
+                ViewBag.ErrorMessage = "No movies found matching your search criteria.";
+            }
 
+            return View(movies);
+        }
+
+        public IActionResult TotalUsers()
+        {
+            var users = _movieRepository.GetAllUsers();
+            var nonAdminUsers = users.Where(u => u.Role != "Admin").ToList();
+            return View(nonAdminUsers);
+        }
+
+        public IActionResult UserOwnedMovies(int id)
+        {
+            User user1 = _movieRepository.GetAllUsers().FirstOrDefault(u => u.UserId == id);
+            var ownedMovies = _movieRepository.GetUserOwnedMovies(id);
+            var totalSpent = _movieRepository.GetTotalMoneySpentByUser(id);
+            var moviesByGenre = _movieRepository.GetMoviesByGenre(id);
+
+            var viewModel = new UserOwnedMoviesViewModel
+            {
+                user = user1,
+                OwnedMovies = ownedMovies,
+                TotalSpent = totalSpent,
+                MoviesByGenre = moviesByGenre
+            };
+
+            return View(viewModel);
+        }
+        // GET: Admin/DetailsMovie/5
+        [HttpGet]
+        public IActionResult Ownedby(int id)
+        {
+            var movie = _movieRepository.GetMovieById(id);
+            if (movie == null)
+            {
+                return NotFound(); // Return a 404 if the movie is not found
+            }
+
+            return View(movie); // Pass the movie model to the view
+        }
 
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MovieStore.Models;
+using System.Text.RegularExpressions;
 
 namespace MovieStore.Repository
 {
@@ -67,6 +68,37 @@ namespace MovieStore.Repository
         {
             context.Users.Update(user);
             context.SaveChanges();
+        }
+        public IEnumerable<Movie> SearchMovies(string query)
+        {
+            if (string.IsNullOrEmpty(query))
+            {
+                return new List<Movie>();
+            }
+
+            // Compile a case-insensitive regular expression from the query
+            Regex regex;
+            try
+            {
+                regex = new Regex(query, RegexOptions.IgnoreCase);
+            }
+            catch (RegexParseException)
+            {
+                // Handle invalid regex patterns (return empty list or handle accordingly)
+                return new List<Movie>();
+            }
+
+            // Filter movies based on Title or Genre using regex matching
+            var movies = context.Movies
+               .AsEnumerable()  // Switch to client-side evaluation
+               .Where(m => regex.IsMatch(m.Title) || regex.IsMatch(m.Genre))
+               .ToList();
+
+            return movies;
+        }
+        public Movie GetMovieById(int id)
+        {
+            return context.Movies.FirstOrDefault(m => m.MovieId == id);
         }
     }
 }
