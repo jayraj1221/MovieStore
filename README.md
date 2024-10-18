@@ -3,7 +3,7 @@ The purpose of the MovieStore application is to provide a seamless platform for 
 ## Installation
 1.) To set up the MovieStore application locally, follow these steps:
 
-2.) Clone the Repository: git clone https://github.com/jayraj1221/moviestore.git
+2.) Clone the Repository: git clone https://github.com/jayraj1221/MovieStore.git
 
 3.) Navigate to the Project Directory: cd moviestore
 
