@@ -4,38 +4,52 @@
 
 @if (Model != null && Model.Any())
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Order ID</th>
-                <th>Movie Title</th>
-                <th>Order Date</th>
-                <th>Total Amount</th>
-                <th>Your Rating</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var order in Model)
-            {
-                <tr>
-                    <td>@order.OrderId</td>
-                    <td>@order.Movie.Title</td>
-                    <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
-                    <td>@order.TotalAmount</td>
-                    <td>
+    <div class="row">
+        @foreach (var order in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <!-- Movie Image -->
+                    <img src="~/images/movies/@order.Movie.ImagePath" alt="@order.Movie.Title" class="card-img-top" style="height: 500px; object-fit: cover;">
+
+                    <!-- Order Details -->
+                    <div class="card-body">
+                        <h5 class="card-title">@order.Movie.Title</h5>
+                        <p class="card-text">
+                            <strong>Order Date:</strong> @order.OrderDate.ToString("yyyy-MM-dd")<br />
+                            <strong>Total Amount:</strong> @order.TotalAmount.ToString("C")
+                        </p>
+                    </div>
+
+                    <!-- Rating Section -->
+                    <div class="card-footer text-center">
                         @if (order.Rating != 0)
                         {
-                            @order.Rating
-                       }
+                            <div>
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    if (i <= order.Rating)
+                                    {
+                                        <span class="text-warning">&#9733;</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">&#9734;</span> 
+                                    }
+                                }
+
+                            </div>
+                        }
                         else
                         {
-                            <a asp-action="RateMovie" asp-route-orderId="@order.OrderId">Rate Movie</a>
+                            <a asp-action="RateMovie" asp-route-orderId="@order.OrderId" class="btn btn-primary">Rate Movie</a>
                         }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                    </div>
+
+                </div>
+            </div>
+        }
+    </div>
 }
 else
 {

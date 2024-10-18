@@ -100,5 +100,14 @@ namespace MovieStore.Repository
         {
             return context.Movies.FirstOrDefault(m => m.MovieId == id);
         }
+        public  bool UserNameExistsAsync(string userName)
+        {
+            return  context.Users.Any(u => u.UserName == userName);
+        }
+
+        public  bool EmailExistsAsync(string email)
+        {
+            return  context.Users.Any(u => u.Email == email);
+        }
     }
 }

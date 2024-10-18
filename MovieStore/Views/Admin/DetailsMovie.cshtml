@@ -2,6 +2,10 @@
 
 @{
     ViewData["Title"] = "Movie Details";
+    double averageRating = ViewBag.AverageRating ?? 0;
+    int fullStars = (int)averageRating; // Number of full stars
+    bool hasHalfStar = (averageRating - fullStars) >= 0.5; // Whether to display a half star
+    int emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0); // Number of empty stars
 }
 
 <h2 class="text-center my-4">Movie Details</h2>
@@ -23,14 +27,37 @@
                 <p><strong>Release Date:</strong> @Model.ReleaseDate.ToString("MMMM dd, yyyy")</p>
                 <p><strong>Price:</strong> @Model.Price.ToString("C")</p>
 
+                <!-- Display Average Rating -->
+                <p><strong>Average Rating:</strong></p>
+                <div class="star-rating">
+                    @for (int i = 0; i < fullStars; i++)
+                    {
+                        <i class="fas fa-star text-warning"></i> <!-- Full star -->
+                    }
+
+                    @if (hasHalfStar)
+                    {
+                        <i class="fas fa-star-half-alt text-warning"></i> <!-- Half star -->
+                    }
+
+                    @for (int i = 0; i < emptyStars; i++)
+                    {
+                        <i class="far fa-star text-warning"></i> <!-- Empty star -->
+                    }
+                </div>
+                <p>@averageRating.ToString("0.0") / 5</p>
+
                 <!-- Action Buttons -->
                 <div class="mt-4">
                     <a asp-controller="Admin" asp-action="EditMovie" asp-route-id="@Model.MovieId" class="btn btn-warning me-2">Edit Movie</a>
                     <a asp-controller="Admin" asp-action="DeleteMovie" asp-route-id="@Model.MovieId" class="btn btn-danger me-2">Delete Movie</a>
-                    <a asp-controller="Admin" asp-action="OwnedBy" asp-route-id="@Model.MovieId" class="btn btn-info ">Owned By</a>
+                    <a asp-controller="Admin" asp-action="OwnedBy" asp-route-id="@Model.MovieId" class="btn btn-info">Owned By</a>
                     <a asp-controller="Admin" asp-action="ManageMovies" class="btn btn-secondary ms-2">Back to List</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Ensure to include Font Awesome or the proper icon library for stars -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />

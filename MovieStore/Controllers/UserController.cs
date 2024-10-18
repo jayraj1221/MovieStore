@@ -1,11 +1,16 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MovieStore.Models;
 using MovieStore.Repository;
 using System.Security.Claims;
+using Humanizer;
 namespace MovieStore.Controllers
 {
+  
     public class UserController : Controller
     {
         private readonly IUser _userRepository;
@@ -21,21 +26,23 @@ namespace MovieStore.Controllers
         }
         public IActionResult Index()
         {
-            // Check if the user is logged in by checking if the session exists
-            var userName = HttpContext.Session.GetString("UserName");
 
-            if (string.IsNullOrEmpty(userName))
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            if (userRole == null || userRole != "User")
             {
-                // If the session is empty or null, redirect to the Login page
+                
                 return RedirectToAction("Login", "User");
             }
 
             // If logged in, retrieve session data and pass it to the view
-            var userRole = HttpContext.Session.GetString("UserRole");
+            var userName = HttpContext.Session.GetString("UserName");
             ViewBag.UserName = userName;
             ViewBag.UserRole = userRole;
-            var movies = _movieRepository.GetAllMovies();
-            return View(movies);
+            var moviesByGenres = _movieRepository.GetMoviesByGenreAll();
+            var trendingMovies = _movieRepository.GetTrendingMovies();
+            ViewBag.TrendingMovies = trendingMovies;
+            return View(moviesByGenres);
         }
         [HttpGet]
         public IActionResult Register()
@@ -49,6 +56,18 @@ namespace MovieStore.Controllers
         {
             if (ModelState.IsValid)
             {
+                if ( _userRepository.UserNameExistsAsync(model.UserName))
+                {
+                    TempData["ErrorMessage"] = "Username already exists.";
+                    return RedirectToAction("Register");
+                }
+
+                // Check if the email already exists
+                if ( _userRepository.EmailExistsAsync(model.Email))
+                {
+                    TempData["ErrorMessage"] = "Email already exists.";
+                    return RedirectToAction("Register");
+                }
                 // Handle the file upload
                 if (model.ProfileImage != null && model.ProfileImage.Length > 0)
                 {
@@ -71,7 +90,7 @@ namespace MovieStore.Controllers
                         UserName = model.UserName,
                         Email = model.Email,
                         Password = model.Password, // Note: Use hashing in a real application
-                        Role = model.Role,
+                        Role = "User",
                         ProfileImagePath =  uniqueFileName // Save the image path
                     };
 
@@ -84,6 +103,10 @@ namespace MovieStore.Controllers
                     ModelState.AddModelError("ProfileImage", "Profile image upload failed.");
                 }
             }
+            foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+            {
+                _log.LogError(error.ErrorMessage);
+            }
             return View(model); // Return to the view with validation messages if the model is not valid
         }
 
@@ -92,6 +115,7 @@ namespace MovieStore.Controllers
         {
             return View(); // Create a Login.cshtml view for user login
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -108,7 +132,7 @@ namespace MovieStore.Controllers
                 if (user.Role == "Admin")
                 {
                     // Redirect to Admin controller
-                    return RedirectToAction("Index", "Admin");
+                    return RedirectToAction("Dashboard", "Admin");
                 }
                 return RedirectToAction("Index");
             }
@@ -117,9 +141,18 @@ namespace MovieStore.Controllers
             ViewBag.ErrorMessage = "Invalid username or password.";
             return View(); // Return the login view if login fails
         }
+     
+
         public IActionResult ConfirmPurchase(int movieId)
         {
             // Fetch the movie details by ID to display on the confirmation page
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            if (userRole == null || userRole != "User")
+            {
+
+                return RedirectToAction("Login", "User");
+            }
             var movie = _movieRepository.GetMovieById(movieId);
             if (movie == null)
             {
@@ -172,12 +205,14 @@ namespace MovieStore.Controllers
 
             // Redirect to a purchase success page or back to the movie 
             // Redirect to a purchase success page or back to the movie list
-            return RedirectToAction("Index");
+            TempData["SuccessMessage"] = "Movie Purchased Successfully.";
+            return RedirectToAction("MovieDetails", new { movieId = movieId });
         }
 
         [HttpGet]
         public IActionResult Orders()
         {
+
             // Get the current logged-in user name from session or any other source (e.g., HttpContext)
             var userName = HttpContext.Session.GetString("UserName");
 
@@ -205,6 +240,13 @@ namespace MovieStore.Controllers
         [HttpGet]
         public IActionResult RateMovie(int orderId)
         {
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            if (userRole == null || userRole != "User")
+            {
+
+                return RedirectToAction("Login", "User");
+            }
             var order = _userRepository.GetOrderById(orderId);
             if (order == null || order.UserId != GetCurrentUserId())
             {
@@ -240,6 +282,13 @@ namespace MovieStore.Controllers
         [HttpGet]
         public IActionResult EditProfile()
         {
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            if (userRole == null || userRole != "User")
+            {
+
+                return RedirectToAction("Login", "User");
+            }
             var userName = HttpContext.Session.GetString("UserName"); // Assuming you're using session for user management
             var user = _userRepository.GetUserByUsername(userName);
 
@@ -316,6 +365,13 @@ namespace MovieStore.Controllers
         [HttpGet]
         public IActionResult Search(string query)
         {
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            if (userRole == null || userRole != "User")
+            {
+
+                return RedirectToAction("Login", "User");
+            }
             // Call the SearchMovies method from the repository
             var movies = _userRepository.SearchMovies(query);
 
@@ -330,6 +386,13 @@ namespace MovieStore.Controllers
         [HttpGet]
         public IActionResult MovieDetails(int movieId)
         {
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            if (userRole == null || userRole != "User")
+            {
+
+                return RedirectToAction("Login", "User");
+            }
             // Find the movie by ID
             var movie = _userRepository.GetMovieById(movieId);
             if (movie == null)
@@ -343,6 +406,13 @@ namespace MovieStore.Controllers
         [HttpGet]
         public IActionResult Profile()
         {
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            if (userRole == null || userRole != "User")
+            {
+
+                return RedirectToAction("Login", "User");
+            }
             // Assuming you have the user's ID from the session or authentication context
             int? userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null)
@@ -357,6 +427,22 @@ namespace MovieStore.Controllers
             }
 
             return View(user);
+        }
+
+        public async Task<IActionResult> Logout()
+        {
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            if (userRole == null)
+            {
+
+                return RedirectToAction("Login", "User");
+            }
+            // Clear all session data
+            HttpContext.Session.Clear();
+
+            // Redirect to the login page (or another page of your choice)
+            return RedirectToAction("Login", "User");
         }
 
     }

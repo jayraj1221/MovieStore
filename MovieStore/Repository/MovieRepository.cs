@@ -147,7 +147,7 @@ namespace MovieStore.Repository
                  AverageRating = g.Average(o => o.Rating) // Calculate average rating
              })
              .OrderByDescending(m => m.AverageRating) // Order by average rating descending
-             .Take(10) // Get the top 10 trending movies
+             .Take(5) // Get the top 10 trending movies
              .ToList();
 
             // Get the movie details for the trending movies
@@ -158,5 +158,34 @@ namespace MovieStore.Repository
 
             return movies;
         }
+        public Dictionary<string, List<Movie>> GetMoviesByGenreAll()
+        {
+            return _context.Movies
+                    .GroupBy(m => m.Genre)
+                    .ToDictionary(g => g.Key, g => g.ToList());
+        }
+        public IEnumerable<Order> GetAllOrders()
+        {
+            return _context.Orders
+                .Include(o => o.Movie)
+                .Include(o=>o.User)// Assuming each order is linked to a movie
+                .ToList();
+        }
+
+        public List<int> GetMovieReviews(int movieId)
+        {
+            
+            var reviews = _context.Orders
+                .Where(o => o.MovieId == movieId && o.Rating > 0) 
+                .Select(o => o.Rating) 
+                .ToList(); 
+
+            return reviews;
+        }
+        public bool IsMoviePurchased(int movieId)
+        {
+            return _context.Orders.Any(o => o.MovieId == movieId);
+        }
+
     }
 }

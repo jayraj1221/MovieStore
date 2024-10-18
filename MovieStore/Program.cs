@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using MovieStore.Models;
 using MovieStore.Repository;
@@ -12,6 +13,8 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true; // Security option
     options.Cookie.IsEssential = true; // Required for GDPR compliance
 });
+
+
 var connectionString = builder.Configuration.GetConnectionString("MovieStoreDatabase");
 
 builder.Services.AddDbContext<MovieStoreContext>(options =>

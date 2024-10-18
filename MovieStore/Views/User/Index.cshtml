@@ -1,4 +1,4 @@
-﻿@model IEnumerable<MovieStore.Models.Movie>
+﻿@model Dictionary<string, List<MovieStore.Models.Movie>>
 @{
     var errorMessage = TempData["ErrorMessage"];
 }
@@ -9,34 +9,112 @@
         @errorMessage
     </div>
 }
-<h2>Available Movies</h2>
+<style>
+    /* Custom styles for carousel control arrows */
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        background-image: url('data:image/svg+xml,%3Csvg xmlns%3D"http://www.w3.org/2000/svg" viewBox%3D"0 0 16 16"%3E%3Cpath fill%3D"black" d%3D"M11.354 1.646a.5.5 0 0 0-.708 0L5.646 6.646a.5.5 0 0 0 0 .708l5 5a.5.5 0 0 0 .708-.708L6.707 7l4.647-4.646a.5.5 0 0 0 0-.708z"/%3E%3C/svg%3E');
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: rgba(0, 0, 0, 0); /* Add a translucent background */
+        background-size: 100%; /* Resize the icon to fit */
+        transition: transform 0.3s ease;
+    }
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Title</th>
-            <th>Genre</th>
-            <th>Release Date</th>
-            <th>Price</th>
-            <th>Poster</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var movie in Model)
-        {
-            <tr>
-                <td>@movie.Title</td>
-                <td>@movie.Genre</td>
-                <td>@movie.ReleaseDate.ToString("MM/dd/yyyy")</td>
-                <td>@movie.Price.ToString("C")</td>
-                <td>
-                    <img src="~/images/movies/@movie.ImagePath" alt="@movie.Title" style="width:100px; height:auto;" />
-                </td>
-                <td>
-                    <a asp-action="MovieDetails" asp-route-movieId="@movie.MovieId" class="btn btn-success">View Details</a>
-                </td>
-            </tr>
+        /* Hover effect for control buttons */
+        .carousel-control-prev-icon:hover,
+        .carousel-control-next-icon:hover {
+            transform: scale(1.2); /* Enlarge on hover */
+            background-color: rgba(0, 0, 0, 0); /* Darker on hover */
         }
-    </tbody>
-</table>
+
+    /* Custom right arrow */
+    .carousel-control-next-icon {
+        background-image: url('data:image/svg+xml,%3Csvg xmlns%3D"http://www.w3.org/2000/svg" viewBox%3D"0 0 16 16"%3E%3Cpath fill%3D"black" d%3D"M4.646 1.646a.5.5 0 0 1 .708 0l5 5a.5.5 0 0 1 0 .708l-5 5a.5.5 0 0 1-.708-.708L9.293 7l-4.647-4.646a.5.5 0 0 1 0-.708z"/%3E%3C/svg%3E');
+    }
+
+    /* Adjust button position and size */
+    .carousel-control-prev, .carousel-control-next {
+        width: 60px;
+    }
+</style>
+<!-- Trending Movies Carousel -->
+@if (ViewBag.TrendingMovies != null && ((IEnumerable<MovieStore.Models.Movie>)ViewBag.TrendingMovies).Any())
+{
+    <div class="card mb-4 " style="background-color:aliceblue">
+        <div class="card-body">
+            <h3 class="card-title text-center text-uppercase" style="color: black;">Popular Movies</h3> <!-- Genre Name -->
+        </div>
+    </div>
+    <div id="trendingMoviesCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            @foreach (var movie in (IEnumerable<MovieStore.Models.Movie>)ViewBag.TrendingMovies)
+            {
+                var activeClass = movie == ((IEnumerable<MovieStore.Models.Movie>)ViewBag.TrendingMovies).First() ? "active" : "";
+
+                <!-- Make the entire item clickable -->
+                <a href="@Url.Action("MovieDetails", "User", new { movieId = movie.MovieId })" class="carousel-item @activeClass" style="text-decoration: none;">
+                    <div class="row">
+                        <!-- Left side: Movie Image -->
+                        <div class="col-md-6">
+                            <img src="~/images/movies/@movie.ImagePath" class="d-block w-100" alt="@movie.Title" style="height: 500px; width: 100%; object-fit: contain;">
+                        </div>
+                        <!-- Right side: Movie Details -->
+                        <div class="col-md-6 d-flex flex-column justify-content-center" style="background-color: #f8f9fa; padding: 20px;">
+                            <h5>@movie.Title</h5>
+                            <p><strong>Genre:</strong> @movie.Genre</p>
+                            <p><strong>Price:</strong> @movie.Price.ToString("C")</p>
+                            <p><strong>Release Date:</strong> @movie.ReleaseDate.ToString("MM/dd/yyyy")</p>
+                        </div>
+                    </div>
+                </a>
+            }
+        </div>
+
+        <!-- Carousel controls -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#trendingMoviesCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#trendingMoviesCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+
+
+}
+
+<br />
+
+@foreach (var genreGroup in Model)
+{
+    <!-- Genre Heading Card -->
+    <div class="card  mb-4" style="background-color:lightsteelblue">
+        <div class="card-body">
+            <h3 class="card-title text-center text-uppercase" style="color: black;">@genreGroup.Key</h3> <!-- Genre Name -->
+        </div>
+    </div>
+
+    <!-- Movies in Genre -->
+    <div class="row flex-nowrap overflow-auto">
+        @foreach (var movie in genreGroup.Value)
+        {
+            <div class="col-md-3 mb-3">
+                <div class="card h-100" style="height: 400px;">
+
+                    <img src="~/images/movies/@movie.ImagePath" alt="@movie.Title" class="card-img-top" style="height: 400px; object-fit: cover;" />
+                    <div class="card-body" style="flex-grow: 1;">
+                        <h6 class="card-title">@movie.Title</h6>
+                        <p class="card-text">Price: @movie.Price.ToString("C")</p>
+                    </div>
+                    <div class="card-footer d-flex flex-row justify-content-evenly">
+                        <a asp-controller="User" asp-action="MovieDetails" asp-route-movieId="@movie.MovieId" class="btn btn-info btn-block">View Details</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+

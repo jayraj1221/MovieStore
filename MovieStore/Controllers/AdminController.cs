@@ -1,8 +1,10 @@
-﻿    using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MovieStore.Models;
 using MovieStore.Repository;
+using NuGet.Protocol.Core.Types;
 
 namespace MovieStore.Controllers
 {
@@ -31,13 +33,19 @@ namespace MovieStore.Controllers
         }
         public IActionResult Dashboard()
         {
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            if (userRole == null || userRole != "Admin")
+            {
+                return RedirectToAction("Login", "User");
+            }
             var model = new DashboardViewModel
             {
                 TotalMovies = _movieRepository.GetTotalMovies(),
-                TotalUsers = _movieRepository.GetTotalUsers(),
+                TotalUsers = _movieRepository.GetTotalUsers() - 1,
                 TotalOrders = _movieRepository.GetTotalOrders(),
                 Movies = _movieRepository.GetAllMovies(),
-                Users = _movieRepository.GetAllUsers(), // Get users here
+                Users = _movieRepository.GetAllUsers(), 
                 GenreTransactionData = _movieRepository.GetGenreTransactionDataAsync(),
                 TrendingMovies = _movieRepository.GetTrendingMovies()
             };
@@ -50,6 +58,12 @@ namespace MovieStore.Controllers
 
         public IActionResult ManageMovies()
         {
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            if (userRole == null || userRole != "Admin")
+            {
+                return RedirectToAction("Login", "User");
+            }
             var movies =  _movieRepository.GetAllMovies();
             return View(movies);
         }
@@ -57,7 +71,12 @@ namespace MovieStore.Controllers
         [HttpGet]
         public IActionResult AddMovie()
         {
-           
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            if (userRole == null || userRole != "Admin")
+            {
+                return RedirectToAction("Login", "User");
+            }
             return View();
         }
 
@@ -65,46 +84,52 @@ namespace MovieStore.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult AddMovie(AddMovieModel model)
         {
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            if (userRole == null || userRole != "Admin")
+            {
+                return RedirectToAction("Login", "User");
+            }
             if (ModelState.IsValid)
             {
-                // Handle the file upload
+                
                 if (model.PosterImage != null && model.PosterImage.Length > 0)
                 {
-                    // Define the folder where the uploaded images will be saved
+                    
                     var uploadsFolder = Path.Combine(_env.WebRootPath, "images/movies");
 
-                    // Generate a unique file name for the uploaded image
+                    
                     var uniqueFileName = Guid.NewGuid().ToString() + "_" + model.PosterImage.FileName;
 
-                    // Create the full file path
+                    
                     var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-                    // Ensure the directory exists
+                    
                     if (!Directory.Exists(uploadsFolder))
                     {
                         Directory.CreateDirectory(uploadsFolder);
                     }
 
-                    // Save the file to the server
+                    
                     using (var fileStream = new FileStream(filePath, FileMode.Create))
                     {
                         model.PosterImage.CopyTo(fileStream);
                     }
 
-                    // Save movie details, including the image path
+                    
                     var movie = new Movie
                     {
                         Title = model.Title,
                         Genre = model.SelectedGenre,
                         ReleaseDate = model.ReleaseDate,
                         Price = model.Price,
-                        ImagePath = uniqueFileName // Store the unique image file name
+                        ImagePath = uniqueFileName 
                     };
 
-                    // Call the repository to save the movie (repository method needs to be implemented)
+                    
                     _movieRepository.AddMovie(movie);
 
-                    // Redirect to a different action after the movie is added, e.g., movie list or manage page
+                    
                     return RedirectToAction("ManageMovies");
                 }
                 else
@@ -113,7 +138,7 @@ namespace MovieStore.Controllers
                 }
             }
 
-            // If the model is invalid, return the view with validation errors
+
     
             return View(model);
         }
@@ -121,8 +146,14 @@ namespace MovieStore.Controllers
         [HttpGet]
         public IActionResult EditMovie(int id)
         {
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            if (userRole == null || userRole != "Admin")
+            {
+                return RedirectToAction("Login", "User");
+            }
             _logger.LogInformation($"Attempting to edit movie with ID: {id}");
-            var movie = _movieRepository.GetMovieById(id); // Fetch movie from DB
+            var movie = _movieRepository.GetMovieById(id); 
 
             if (movie == null)
             {
@@ -146,37 +177,43 @@ namespace MovieStore.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult EditMovie(EditMovieModel model)
         {
-                _logger.LogInformation("HERE IT IS");
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            if (userRole == null || userRole != "Admin")
+            {
+                return RedirectToAction("Login", "User");
+            }
+            _logger.LogInformation("HERE IT IS");
             if (ModelState.IsValid)
             {
-                // Retrieve the existing movie from the database
+                
                 var movie = _movieRepository.GetMovieById(model.MovieId);
                 if (movie == null)
                 {
-                    return NotFound(); // Return a 404 if the movie is not found
+                    return NotFound(); 
                 }
 
-                // Update movie properties
+                
                 movie.Title = model.Title;
-                movie.Genre = model.SelectedGenre; // Assuming SelectedGenre is a string matching the genre
+                movie.Genre = model.SelectedGenre; 
                 movie.ReleaseDate = model.ReleaseDate;
                 movie.Price = model.Price;
 
 
-                // Handle the poster image upload
+                
                 if (model.PosterImage != null && model.PosterImage.Length > 0)
                 {
-                    var uploadsFolder = Path.Combine(_env.WebRootPath, "images/movies"); // Adjust the path as needed
+                    var uploadsFolder = Path.Combine(_env.WebRootPath, "images/movies"); 
                     var uniqueFileName = Guid.NewGuid().ToString() + "_" + model.PosterImage.FileName;
                     var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-                    // Save the new poster image
+                    
                     using (var fileStream = new FileStream(filePath, FileMode.Create))
                     {
                         model.PosterImage.CopyTo(fileStream);
                     }
 
-                    // Update the movie's poster path
+                    // 
                     movie.ImagePath = uniqueFileName; // Adjust this to match your property
                 }
 
@@ -200,13 +237,18 @@ namespace MovieStore.Controllers
         [HttpGet]
         public IActionResult DeleteMovie(int id)
         {
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            if (userRole == null || userRole != "Admin")
+            {
+                return RedirectToAction("Login", "User");
+            }
             // Retrieve the movie details based on the ID if needed for display
             var movie = _movieRepository.GetMovieById(id);
             if (movie == null)
             {
                 return NotFound(); // Return a 404 if the movie is not found
             }
-
             // Return the view with the movie details for confirmation
             return View(movie);
         }
@@ -216,16 +258,24 @@ namespace MovieStore.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteMovieConfirm(int movieId)
         {
-            // Call the repository to delete the movie
+
             var movie = _movieRepository.GetMovieById(movieId);
             if (movie == null)
             {
-                return NotFound(); // Return a 404 if the movie is not found
+                return NotFound(); 
+            }
+            bool isPurchased = _movieRepository.IsMoviePurchased(movieId); 
+
+            if (isPurchased)
+            {
+
+                TempData["ErrorMessage"] = "Cannot delete the movie as it has been purchased.";
+                return RedirectToAction("DeleteMovie",new {id = movieId}); 
             }
 
-            _movieRepository.DeleteMovie(movieId); // Assuming you have a DeleteMovie method in your repository
+            _movieRepository.DeleteMovie(movieId); 
 
-            // Redirect to the ManageMovies action after successful deletion
+            
             return RedirectToAction("ManageMovies");
         }
 
@@ -234,17 +284,40 @@ namespace MovieStore.Controllers
         [HttpGet]
         public IActionResult DetailsMovie(int id)
         {
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            if (userRole == null || userRole != "Admin")
+            {
+                return RedirectToAction("Login", "User");
+            }
             var movie = _movieRepository.GetMovieById(id);
             if (movie == null)
             {
-                return NotFound(); // Return a 404 if the movie is not found
+                return NotFound(); 
+            }
+            var ratings = _movieRepository.GetMovieReviews(id);
+
+            
+            double averageRating = 0;
+            if (ratings.Any())
+            {
+                averageRating = ratings.Average();
             }
 
-            return View(movie); // Pass the movie model to the view
+
+            ViewBag.AverageRating = averageRating;
+
+            return View(movie); 
         }
         [HttpGet]
         public IActionResult Search(string query)
         {
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            if (userRole == null || userRole != "Admin")
+            {
+                return RedirectToAction("Login", "User");
+            }
             // Call the SearchMovies method from the repository
             var movies = _movieRepository.SearchMovies(query);
 
@@ -259,6 +332,12 @@ namespace MovieStore.Controllers
 
         public IActionResult TotalUsers()
         {
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            if (userRole == null || userRole != "Admin")
+            {
+                return RedirectToAction("Login", "User");
+            }
             var users = _movieRepository.GetAllUsers();
             var nonAdminUsers = users.Where(u => u.Role != "Admin").ToList();
             return View(nonAdminUsers);
@@ -266,6 +345,12 @@ namespace MovieStore.Controllers
 
         public IActionResult UserOwnedMovies(int id)
         {
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            if (userRole == null || userRole != "Admin")
+            {
+                return RedirectToAction("Login", "User");
+            }
             User user1 = _movieRepository.GetAllUsers().FirstOrDefault(u => u.UserId == id);
             var ownedMovies = _movieRepository.GetUserOwnedMovies(id);
             var totalSpent = _movieRepository.GetTotalMoneySpentByUser(id);
@@ -285,6 +370,12 @@ namespace MovieStore.Controllers
         [HttpGet]
         public IActionResult Ownedby(int id)
         {
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            if (userRole == null || userRole != "Admin")
+            {
+                return RedirectToAction("Login", "User");
+            }
             var movie = _movieRepository.GetMovieById(id);
             if (movie == null)
             {
@@ -298,6 +389,21 @@ namespace MovieStore.Controllers
 
             return View();
         }
+        public IActionResult TotalOrders()
+        {
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            if (userRole == null || userRole != "Admin")
+            {
+                return RedirectToAction("Login", "User");
+            }
+            // Fetching all the orders from the repository
+            var orders = _movieRepository.GetAllOrders();
+
+            // Passing the orders list to the view
+            return View(orders);
+        }
+
 
     }
 }

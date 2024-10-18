@@ -23,5 +23,13 @@ namespace MovieStore.Repository
 
         public  List<Movie> GetTrendingMovies();
 
+        public Dictionary<string, List<Movie>> GetMoviesByGenreAll();
+
+        public IEnumerable<Order> GetAllOrders();
+
+        public List<int> GetMovieReviews(int movieId);
+
+        public bool IsMoviePurchased(int movieId);
+
     }
 }

@@ -26,6 +26,9 @@ namespace MovieStore.Repository
 
         IEnumerable<Movie> SearchMovies(string query);
 
+        bool UserNameExistsAsync(string userName);
+        bool EmailExistsAsync(string email);
+
     }
 
 }
