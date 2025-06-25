@@ -129,6 +129,16 @@ namespace MovieStore.Controllers
                 HttpContext.Session.SetInt32("UserId", user.UserId);
                 HttpContext.Session.SetString("UserName", user.UserName);
                 HttpContext.Session.SetString("UserRole", user.Role);
+                var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name, user.UserName),
+            new Claim(ClaimTypes.Role, user.Role) // Enables [Authorize(Roles = "Admin")]
+        };
+
+                var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var principal = new ClaimsPrincipal(identity);
+
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
                 if (user.Role == "Admin")
                 {
                     // Redirect to Admin controller

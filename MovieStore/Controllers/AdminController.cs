@@ -8,7 +8,7 @@ using NuGet.Protocol.Core.Types;
 
 namespace MovieStore.Controllers
 {
-
+    [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
 

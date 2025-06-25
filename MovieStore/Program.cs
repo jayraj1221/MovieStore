@@ -1,41 +1,50 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using MovieStore.Models;
 using MovieStore.Repository;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
+
+// ✅ Authentication Service Registration
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login"; // Redirect if not logged in
+        options.AccessDeniedPath = "/Account/AccessDenied"; // Redirect if no permission
+    });
+
+// ✅ Session Setup
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30); // Session timeout
-    options.Cookie.HttpOnly = true; // Security option
-    options.Cookie.IsEssential = true; // Required for GDPR compliance
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
 });
 
-
+// ✅ DbContext and Repositories
 var connectionString = builder.Configuration.GetConnectionString("MovieStoreDatabase");
-
 builder.Services.AddDbContext<MovieStoreContext>(options =>
     options.UseSqlServer(connectionString));
-
 builder.Services.AddScoped<IUser, SUser>();
 builder.Services.AddScoped<IMovie, MovieRepository>();
 
-
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Middleware pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
 }
-app.UseSession();
+
 app.UseStaticFiles();
+app.UseSession();
 
 app.UseRouting();
-
+app.UseAuthentication(); 
 app.UseAuthorization();
 
 app.MapControllerRoute(
@@ -47,9 +56,9 @@ app.MapControllerRoute(
     pattern: "User/{action=Index}/{id?}",
     defaults: new { controller = "User" });
 
-
 app.MapControllerRoute(
     name: "admin",
     pattern: "Admin/{action=Index}/",
     defaults: new { controller = "Admin" });
+
 app.Run();

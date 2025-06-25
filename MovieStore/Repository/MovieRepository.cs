@@ -147,7 +147,7 @@ namespace MovieStore.Repository
                  AverageRating = g.Average(o => o.Rating) // Calculate average rating
              })
              .OrderByDescending(m => m.AverageRating) // Order by average rating descending
-             .Take(5) // Get the top 10 trending movies
+             .Take(5) // Get the top 5 trending movies
              .ToList();
 
             // Get the movie details for the trending movies
